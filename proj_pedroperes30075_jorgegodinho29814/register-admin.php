@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+require 'lib/nusoap.php';
 require_once 'dbconnect.php';
 // Libraria que me permite usar a função password_verify/hash em versões anteriores a PHP 5.5
 require 'password_compat-master/lib/password.php';
@@ -10,42 +10,20 @@ if (isset($_SESSION['userSession']) != "") {
 }
 
 if (isset($_POST['btn-signup'])) {
+    $client = new nusoap_client("http://localhost/engsw/proj_pedroperes30075_jorgegodinho29814/ws1.php");
+    $client->soap_defencoding = 'UTF-8';
+    
     // Tirar tags de HTML e PHP da string
     $uname = strip_tags($_POST['username']);
     $email = strip_tags($_POST['email']);
     $upass = strip_tags($_POST['password']);
-    
+
     // Tirar caracteres especiais usados em SQL
     $uname = $DBcon->real_escape_string($uname);
     $email = $DBcon->real_escape_string($email);
     $upass = $DBcon->real_escape_string($upass);
 
-    // So funciona em PHP 5.5 ou mais recente, portanto usei uma lib que me permite usar esta função
-    $hashed_password = password_hash($upass, PASSWORD_DEFAULT);
-
-    $check_email = $DBcon->query("SELECT email FROM admin WHERE email='$email'");
-    $count = $check_email->num_rows;
-
-    if ($count == 0) {
-
-        $query = "INSERT INTO admin(name,email,password) VALUES('$uname','$email','$hashed_password')";
-
-        if ($DBcon->query($query)) {
-            $msg = "<div class='alert alert-success'>
-						<span class='glyphicon glyphicon-info-sign'></span> &nbsp; Registo feito com sucesso!
-					</div>";
-        } else {
-            $msg = "<div class='alert alert-danger'>
-						<span class='glyphicon glyphicon-info-sign'></span> &nbsp; Erro ao registar!
-					</div>";
-        }
-    } else {
-
-
-        $msg = "<div class='alert alert-danger'>
-					<span class='glyphicon glyphicon-info-sign'></span> &nbsp; Email já está registado. Tenta novamente.
-				</div>";
-    }
+    $result = $client->call('registerAdmin', array('uname' => $uname, 'email' => $email, 'upass' => $upass));
 
     $DBcon->close();
 }
@@ -110,6 +88,17 @@ if (isset($_POST['btn-signup'])) {
                     </button> 
                 </div> 
             </form>
+
+            <?php
+            // Display the request and response
+            echo '<h2>Request</h2>';
+            echo '<pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
+            echo '<h2>Response</h2>';
+            echo '<pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
+            // Display the debug messages
+            echo '<h2>Debug</h2>';
+            echo '<pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
+            ?>
         </div>
         <div class="col-sm-4"></div>
 

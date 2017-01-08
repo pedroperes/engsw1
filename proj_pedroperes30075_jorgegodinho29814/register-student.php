@@ -9,10 +9,10 @@ if (isset($_SESSION['userSession']) != "") {
     //header("Location: home.php");
 }
 
-$client = new nusoap_client("http://127.0.0.1/engsw/proj_pedroperes30075_jorgegodinho29814/ws1.php");
-$client->soap_defencoding = 'UTF-8';
-
 if (isset($_POST['btn-signup'])) {
+    $client = new nusoap_client("http://localhost/engsw/proj_pedroperes30075_jorgegodinho29814/ws1.php");
+    $client->soap_defencoding = 'UTF-8';
+
     // Tirar tags de HTML e PHP da string
     $uname = strip_tags($_POST['username']);
     $email = strip_tags($_POST['email']);
@@ -25,19 +25,8 @@ if (isset($_POST['btn-signup'])) {
     $upass = $DBcon->real_escape_string($upass);
     $gender = $DBcon->real_escape_string($gender);
 
-    $res = $client->call(
-            'registerStudent', array(
-        'uname' => $uname,
-        'email' => $email,
-        'gender' => $gender,
-        'upass' => $upass)
-    );
+    $result = $client->call('registerStudent', array('uname' => $uname, 'email' => $email, 'gender' => $gender, 'upass' => $upass));
 
-    $err = $client->getError();
-    
-    if ($err) {
-        echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
-    }
     $DBcon->close();
 }
 ?>
@@ -101,6 +90,17 @@ if (isset($_POST['btn-signup'])) {
                     </button> 
                 </div> 
             </form>
+
+            <?php
+            // Display the request and response
+            echo '<h2>Request</h2>';
+            echo '<pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
+            echo '<h2>Response</h2>';
+            echo '<pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
+            // Display the debug messages
+            echo '<h2>Debug</h2>';
+            echo '<pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
+            ?>
         </div>
         <div class="col-sm-4"></div>
 
