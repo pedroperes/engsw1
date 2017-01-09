@@ -17,7 +17,7 @@ if (isset($_POST['btn-signup'])) {
         echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
         // At this point, you know the call that follows will fail
     }
-    $result = $client->call('listSalaslivres', array('number' => $number, 'capacity' => $capacity));
+    $result = $client->call('listFreeRoom', array('number' => $number, 'capacity' => $capacity));
     $DBcon->close();
 }
 ?>
