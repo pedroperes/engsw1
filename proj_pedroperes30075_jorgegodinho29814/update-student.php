@@ -1,5 +1,6 @@
 <?php
 session_start();
+require 'lib/nusoap.php';
 // Incluir dbconnect.php que é onde é feita a ligação com a DB
 include_once 'dbconnect.php';
 
@@ -14,21 +15,18 @@ $userRow = $query->fetch_array();
 
 
 if (isset($_POST["atualizar"])) {
+    $client = new nusoap_client("http://localhost/engsw/proj_pedroperes30075_jorgegodinho29814/ws3.php");
+    $client->soap_defencoding = 'UTF-8';
+    
     $nome = $_POST['nome'];
     $email = $_POST['email'];
     $gender = $_POST['gender'];
+    $id =  $_SESSION['userSession'];
 
-
-    $sql = "UPDATE student SET name='$nome', gender='$gender', email='$email' WHERE id=" . $_SESSION['userSession'];
-
-    if ($DBcon->query($sql) === TRUE) {
-        
-    } else {
-        echo "Erro: " . $DBcon->error;
-    }
+    $result = $client->call('updateStudent', array('nome' => $nome, 'gender' => $gender, 'email' => $email, 'id' => $id));
+    
+    $DBcon->close();
 }
-
-$DBcon->close();
 ?>
 
 <html>
@@ -81,6 +79,17 @@ $DBcon->close();
                 <br>
                 <input type="submit" name="atualizar" value="Atualizar">
             </form>
+            
+            <?php
+            // Display the request and response
+            echo '<h2>Request</h2>';
+            echo '<pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
+            echo '<h2>Response</h2>';
+            echo '<pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
+            // Display the debug messages
+            echo '<h2>Debug</h2>';
+            echo '<pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
+            ?>
         </div>
         <div class="col-sm-4"></div>
 

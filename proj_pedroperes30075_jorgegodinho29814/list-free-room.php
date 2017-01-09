@@ -1,38 +1,32 @@
 <?php
 session_start();
 require 'lib/nusoap.php';
-// Incluir dbconnect.php que é onde é feita a ligação com a DB
-include_once 'dbconnect.php';
+require_once 'dbconnect.php';
+// Libraria que me permite usar a função password_verify/hash em versões anteriores a PHP 5.5
+require 'password_compat-master/lib/password.php';
 
-
-if (!isset($_SESSION['userSession'])) {
-    header("Location: index.php");
+if (isset($_SESSION['userSession']) != "") {
+    //header("Location: home.php");
 }
 
-// Serve para depois usar o nome de utilizador
-$query = $DBcon->query("SELECT * FROM student WHERE id=" . $_SESSION['userSession']);
-$userRow = $query->fetch_array();
-
-$query1 = $DBcon->query("SELECT title FROM course");
-
-if (isset($_POST["atualizar"])) {
-    $client = new nusoap_client("http://localhost/engsw/proj_pedroperes30075_jorgegodinho29814/ws3.php");
+if (isset($_POST['btn-signup'])) {
+    $client = new nusoap_client("http://localhost/engsw/proj_pedroperes30075_jorgegodinho29814/ws1.php");
     $client->soap_defencoding = 'UTF-8';
-    
-    $name = $_POST['name'];
-    $student_id = $_SESSION['userSession'];
-    
-    $query2 = $DBcon->query("SELECT * FROM course WHERE title='$name'");
-    $userRow1 = $query2->fetch_array();
 
-    $result = $client->call('enrollCourse', array('student_id' => $student_id, 'course_id' => $userRow1['id']));
+    // Check for an error
+    $err = $client->getError();
+    if ($err) {
+        // Display the error
+        echo '<h2>Constructor error</h2><pre>' . $err . '</pre>';
+        // At this point, you know the call that follows will fail
+    }
+
+    $result = $client->call('listStudents', array('name' => $name, 'code' => $code));
+
 
     $DBcon->close();
 }
-
-$DBcon->close();
 ?>
-
 <html>
     <head>
         <meta charset="utf-8">
@@ -42,9 +36,7 @@ $DBcon->close();
         <meta name="Projeto" content="">
         <meta name="Pedro Peres, Jorge Godinho" content="">
         <link rel="icon" href="../../favicon.ico">
-
-        <title>Painél de <?php echo $userRow['name']; ?></title>
-
+        <title>Listas alunos</title>
         <!-- Bootstrap core CSS -->
         <link href="../bootstrap-3.3.7/docs/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -63,26 +55,16 @@ $DBcon->close();
           <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
           <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
+
     </head>
     <body>
-
         <div class="col-sm-4"></div>
         <div class="col-sm-4">
-            <h1>Inscrição a Curso</h1>
-
-            <form action="enroll-course.php" method="post">
-                Curso:
-                <select name="name">
-                    <?php while ($row = $query1->fetch_assoc()) { ?>
-                        <option value="<?php echo $row['title']; ?>"> <?php echo $row['title']; ?></option>
-                    <?php } ?>
-                </select>
-                <br>
-                <br>
-                <input type="submit" name="atualizar" value="Atualizar">
-            </form>
-            
             <?php
+            echo '<h2>Fault</h2><pre>';
+            print_r($result);
+            echo '</pre>';
+
             // Display the request and response
             echo '<h2>Request</h2>';
             echo '<pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';

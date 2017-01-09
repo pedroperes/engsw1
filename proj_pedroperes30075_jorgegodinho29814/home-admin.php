@@ -54,13 +54,13 @@ $DBcon->close();
                 <a class="list-group-item" href="register-student.php">Registar aluno</a>
                 <a class="list-group-item" href="register-docente.php">Registar docente</a>
                 <a class="list-group-item" href="register-admin.php">Registar administrativo</a>
-                <a class="list-group-item" href="create-degree.php">Criar disciplina</a>
-                <a class="list-group-item" href="add-instructor-degree.php">Associar docentes a unidades curriculares</a>
-                <a class="list-group-item" href="">Obter lista de alunos inscritos</a>
+                <a class="list-group-item" href="create-degree.php">Criar curso</a>
+                <a class="list-group-item" href="add-instructor-course.php">Associar docentes a unidades curriculares</a>
+                <a class="list-group-item" href="list-students.php">Obter lista de alunos inscritos</a> 
                 <a class="list-group-item" href="">Criar horário para unidade curricular</a>
-                <a class="list-group-item" href="">Definir sala para unidade curricular</a>
+                <a class="list-group-item" href="set-room.php">Definir sala para unidade curricular</a>
                 <a class="list-group-item" href="">Consultar a lista de notas de um aluno</a>
-                <a class="list-group-item" href="">Obter a lista de todas as salas livres num determinado periodo de tempo</a>
+                <a class="list-group-item" href="list-free-room.php">Obter a lista de todas as salas livres num determinado periodo de tempo</a>
             </div>
         </div>
         <div class="col-sm-4"><li><a href="logout.php?logout"><span class="glyphicon glyphicon-log-out"></span>&nbsp; Logout</a></li></div>

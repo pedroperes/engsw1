@@ -1,7 +1,7 @@
 <?php
 session_start();
 require 'lib/nusoap.php';
-require_once 'dbconnect.php';
+require 'dbconnect.php';
 // Libraria que me permite usar a função password_verify/hash em versões anteriores a PHP 5.5
 require 'password_compat-master/lib/password.php';
 
@@ -11,18 +11,19 @@ if (isset($_SESSION['userSession']) != "") {
 
 if (isset($_POST['btn-signup'])) {
     $client = new nusoap_client("http://localhost/engsw/proj_pedroperes30075_jorgegodinho29814/ws1.php");
-    $client->soap_defencoding = 'UTF-8';
+    $client->soap_defencoding = 'UTF-8'; 
 
-    // Tirar tags de HTML e PHP da string
-    $name = strip_tags($_POST['name']);
-    $code = strip_tags($_POST['code']);
+    $instructor_id = strip_tags($_POST['instructor_id']);
+    $course_id = strip_tags($_POST['course_id']);
+    $section_id = strip_tags($_POST['section_id']);
+    
+    $query = $DBcon->query("SELECT * FROM instructor WHERE name='$instructor_id'");
+    $userRow = $query->fetch_array();
 
-    // Tirar caracteres especiais usados em SQL
-    $name = $DBcon->real_escape_string($name);
-    $code = $DBcon->real_escape_string($code);
+    $query = $DBcon->query("SELECT * FROM course WHERE title='$course_id'");
+    $userRow2 = $query->fetch_array();
 
-
-    $result = $client->call('createDegree', array('name' => $name, 'code' => $code));
+    $result = $client->call('addInstructorCourse', array('instructor_id' => $userRow['id'], 'course_id' => $userRow2['id'], 'section_id' => $section_id));
 
     $DBcon->close();
 }
@@ -36,7 +37,7 @@ if (isset($_POST['btn-signup'])) {
         <meta name="Projeto" content="">
         <meta name="Pedro Peres, Jorge Godinho" content="">
         <link rel="icon" href="../../favicon.ico">
-        <title>Criar disciplina</title>
+        <title>Associar docente a disciplina</title>
         <!-- Bootstrap core CSS -->
         <link href="../bootstrap-3.3.7/docs/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -60,21 +61,46 @@ if (isset($_POST['btn-signup'])) {
     <body>
         <div class="col-sm-4"></div>
         <div class="col-sm-4">
-            <form class="form-signin" action="create-degree.php" method="post" id="register-form">
-                <h2 class="form-signin-heading">Criar disciplina</h2><hr />
+            <form class="form-signin" action="add-instructor-course.php" method="post" id="register-form">
+                <h2 class="form-signin-heading">Associar docente a disciplina</h2><hr />
                 <?php
                 if (isset($msg)) {
                     echo $msg;
                 }
                 ?>
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Name" name="name" required  />
-                </div>
-
-                <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Code" name="code" required  />
-                </div>
-
+                Docente:
+                <select name="instructor_id">
+                    <?php
+                    require 'dbconnect.php';
+                    $query1 = $DBcon->query("SELECT name FROM instructor");
+                    while ($row = $query1->fetch_assoc()) {
+                        ?>
+                        <option value="<?php echo $row['name']; ?>"> <?php echo $row['name']; ?></option><?php } ?>
+                </select>
+                <br>
+                <br>
+                Curso:
+                <select name="course_id">
+                    <?php
+                    require 'dbconnect.php';
+                    $query1 = $DBcon->query("SELECT title FROM course");
+                    while ($row = $query1->fetch_assoc()) {
+                        ?>
+                        <option value="<?php echo $row['title']; ?>"> <?php echo $row['title']; ?></option><?php } ?>
+                </select>
+                <br>
+                <br>
+                Secção:
+                <select name="section_id">
+                    <?php
+                    require 'dbconnect.php';
+                    $query1 = $DBcon->query("SELECT id FROM section");
+                    while ($row = $query1->fetch_assoc()) {
+                        ?>
+                        <option value="<?php echo $row['id']; ?>"> <?php echo $row['id']; ?></option><?php } ?>
+                </select>
+                <br>
+                <br>
                 <div class="form-group">
                     <button type="submit" class="btn btn-default" name="btn-signup">
                         <span class="glyphicon glyphicon-log-in"></span> &nbsp; Adicionar
@@ -83,14 +109,15 @@ if (isset($_POST['btn-signup'])) {
             </form>
 
             <?php
-            // Display the request and response
-            echo '<h2>Request</h2>';
-            echo '<pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
-            echo '<h2>Response</h2>';
-            echo '<pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
-            // Display the debug messages
-            echo '<h2>Debug</h2>';
-            echo '<pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>';
+              // Display the request and response
+              echo '<h2>Request</h2>';
+              echo '<pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
+              echo '<h2>Response</h2>';
+              echo '<pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
+              // Display the debug messages
+              echo '<h2>Debug</h2>';
+              echo '<pre>' . htmlspecialchars($client->debug_str, ENT_QUOTES) . '</pre>'; 
+              $DBcon->close();
             ?>
         </div>
         <div class="col-sm-4"></div>
