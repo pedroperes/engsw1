@@ -30,7 +30,7 @@ if (isset($_POST['btn-signup'])) {
         <meta name="Projeto" content="">
         <meta name="Pedro Peres, Jorge Godinho" content="">
         <link rel="icon" href="../../favicon.ico">
-        <title>Listas alunos</title>
+        <title>Listar salas</title>
         <!-- Bootstrap core CSS -->
         <link href="../bootstrap-3.3.7/docs/dist/css/bootstrap.min.css" rel="stylesheet">
 
